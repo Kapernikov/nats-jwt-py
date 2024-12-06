@@ -20,12 +20,12 @@ from dataclasses import dataclass
 from nats_jwt.v2.version import LIB_VERSION
 from nats_jwt.v2.account_claims import AccountClaims
 from nats_jwt.v2.claims import (
-    AccountClaim, Claims, ClaimsData, ClaimType, GenericFields, OperatorClaim, safe_url_base64_decode, UserClaim
+    AccountClaim, Claims, ClaimsData, ClaimType, GenericFields, OperatorClaim, safe_url_base64_decode, UserClaim, AuthorizationRequestClaim, AuthorizationResponseClaim
 )
 from nats_jwt.v2.header import parse_headers
 from nats_jwt.v2.operator_claims import OperatorClaims
 from nats_jwt.v2.user_claims import UserClaims
-
+from nats_jwt.v2.auth_claims import AuthRequestClaims, AuthResponseClaims
 
 @dataclass
 class _Identifier:
@@ -60,6 +60,8 @@ def load_claims(data: bytearray | bytes | str) -> tuple[int, Claims]:
         OperatorClaim: OperatorClaims.load,
         AccountClaim: AccountClaims.load,
         UserClaim: UserClaims.load,
+        AuthorizationRequestClaim: AuthRequestClaims.load,
+        AuthorizationResponseClaim: AuthResponseClaims.load,
         "cluster": lambda x, y: error("ClusterClaims"),
         "server": lambda x, y: error("ServerClaims"),
     }.get(

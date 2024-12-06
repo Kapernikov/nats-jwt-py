@@ -45,9 +45,9 @@ UserClaim: Final[ClaimType] = "user"
 # [not supported] ActivationClaim is the type of an activation JWT
 # ActivationClaim: Final[ClaimType] = "activation"
 # [not supported] AuthorizationRequestClaim is the type of an auth request claim JWT
-# AuthorizationRequestClaim: Final[ClaimType] = "authorization_request"
+AuthorizationRequestClaim: Final[ClaimType] = "authorization_request"
 # [not supported] AuthorizationResponseClaim is the response for an auth request
-# AuthorizationResponseClaim: Final[ClaimType] = "authorization_response"
+AuthorizationResponseClaim: Final[ClaimType] = "authorization_response"
 # GenericClaim is a type that doesn't match Operator/Account/User/ActionClaim
 GenericClaim: Final[ClaimType] = "generic"
 
@@ -157,7 +157,7 @@ class ClaimsData(Claims):
         sub: Subject
     """
     sub: str   # Subject
-    name: str  # Name
+    name: str = field(default_factory=str)  # Name
 
     aud: str = field(default_factory=str, metadata=_claim_data_config)
     exp: int = field(default_factory=int, metadata=_claim_data_config)  # Expires

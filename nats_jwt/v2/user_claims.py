@@ -20,7 +20,7 @@ from typing import Final
 import nkeys
 
 from nats_jwt.nkeys_ext import Decode
-from nats_jwt.v2.claims import _claim_data_config, ClaimsData, GenericFields, PrefixByte, UserClaim
+from nats_jwt.v2.claims import _claim_data_config, ClaimsData, GenericFields, PrefixByte, UserClaim, AuthorizationResponseClaim, ClaimType
 from nats_jwt.v2.types import Limits, Permissions
 from nats_jwt.v2.validation import ValidationResults
 
@@ -79,6 +79,9 @@ class UserClaims(ClaimsData):
 
         self.nats.nats_limits = Limits()
 
+    def claim_type(self) -> ClaimType:
+        return UserClaim
+
     def has_empty_permissions(self) -> bool:
         return self.nats.as_user_permission_limits() == UserPermissionLimits()
 
@@ -110,3 +113,4 @@ class UserClaims(ClaimsData):
 
     def is_bearer_token(self) -> bool:
         return self.nats.bearer_token
+

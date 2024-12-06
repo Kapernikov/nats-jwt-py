@@ -29,6 +29,7 @@ from nats_jwt.v2.account_claims import AccountClaims
 from nats_jwt.v2.claims import AnyClaims, extract_payload_sig_from_jwt
 from nats_jwt.v2.operator_claims import OperatorClaims
 from nats_jwt.v2.user_claims import UserClaims
+from nats_jwt.v2.auth_claims import AuthResponseClaims, AuthRequestClaims
 
 
 JWT = t.Annotated[str, "Json Web Token"]
@@ -334,6 +335,57 @@ class User(Snippet):
         _skp: (protected) key-pair of the account that will sign the JWT of this user
     """
     claims_t = UserClaims
+
+    @staticmethod
+    def new_pair() -> KeyPair:
+        """ Creates a new user key pair.
+
+        Returns:
+            new user key pair (instance of nkeys.KeyPair)
+        """
+        return create_user_pair()
+
+    def __init__(
+            self,
+            jwt: JWT | None = None,
+            claims: AnyClaims | None = None,
+            seed: bytes | None = None,
+            seed_getter: t.Callable[[str], bytes | str] = None,
+            signer_kp: KeyPair | None = None,
+    ):
+        """ Create a new instance of a user snippet.
+
+        Args:
+            jwt: JWT of the user
+            claims: claims of the user
+            seed: nats seed, starting with `S`
+                Not raw.
+            seed_getter: function that will get the nats_seed for a given public key.
+            signer_kp: key-pair of the account that will sign the JWT of this user
+        """
+        super().__init__(jwt, claims, seed, seed_getter)
+        self._skp: KeyPair = signer_kp
+
+    @property
+    def jwt(self) -> JWT:
+        """ Return a JWT of the user """
+        if self.claims is None:
+            raise MissingAttribute("claims")
+        if self._skp is None:
+            raise MissingAttribute("signer key pair(_skp).")
+        self.claims: UserClaims
+        return self.claims.encode(self._skp)
+
+class AuthorizationResponse(Snippet):
+    """ Snippet representing a user in NATS.
+
+    Attributes:
+        claims_t: type of claims that will be used, e.g. UserClaims
+        claims: claims of the user
+
+        _skp: (protected) key-pair of the account that will sign the JWT of this user
+    """
+    claims_t = AuthResponseClaims
 
     @staticmethod
     def new_pair() -> KeyPair:

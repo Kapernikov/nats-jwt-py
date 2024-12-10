@@ -291,11 +291,25 @@ class ClaimsData(Claims):
             vr.add("claim is not valid yet", level="e")
 
     @classmethod
+    def cleanup_dict_keys(cls: Type[T], data: Any) -> Any:
+        if isinstance(data, dict):
+            new_dict = {}
+            for key, value in data.items():
+                if key == 'pass':  # Rename 'pass' to 'password'
+                    key = 'password'
+                new_dict[key] = cls.cleanup_dict_keys(value)  # Recursively clean up nested dictionaries
+            return new_dict
+        elif isinstance(data, list):
+            return [cls.cleanup_dict_keys(item) for item in data]  # Recursively clean up nested lists
+        else:
+            return data  # Base case: no change needed
+
+    @classmethod
     def load(cls: Type[T], data: dict, version: int) -> T:
         if version > 2 or version == 1:
             raise Warning(f"This lib does not support jwt version {version}. (only v2 is supported)")
 
-        return dacite.from_dict(cls, data=data)
+        return dacite.from_dict(cls, data=cls.cleanup_dict_keys(data))
 
     @classmethod
     def decode_claims(cls: Type[T], token: str) -> T:

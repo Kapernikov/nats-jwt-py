@@ -99,6 +99,10 @@ class ClientInfo():
 @dataclass_json
 @dataclass
 class ConnectOpts():
+    jwt: str = field(default="")
+    nkey: str = field(default="")
+    sig: str = field(default="")
+    auth_token= str = field(default="")
     user: str =  field(default="")
     password: str = field(default="", metadata=config(field_name="pass"))
     name: str = field(default="")
